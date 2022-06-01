@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{name}} </title>
+    <!--
+    {% block mainHeadInclude %}
+    {% endblock mainHeadInclude %}
+    -->
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.21.1/cytoscape.min.js"
+        integrity="sha512-H44mkyNG9R5Y8NDjFoZ0lnMGgxfsbfbuewUNJJjecVOUzR3n/JL8+UFc07pP74T5tA+aGOMKCwazdDYwoquE8g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        #cy {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <!--
+    {{nodes}}-->
+    <div id="cy"></div>
+    <!--
+    {% block mainBody %}
+    {% endblock mainBody %}
+    
+    {% load static %}
+    -->
+    <script src="https://unpkg.com/layout-base/layout-base.js"></script>
+    <script src="https://unpkg.com/cose-base/cose-base.js"></script>
+    <script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
+
+    <script>
+        var data = JSON.parse("{{elements|escapejs}}");
+        console.log(data);
+        var cy = cytoscape({
+            container: document.getElementById('cy'),
+            style: [{
+                selector: "node",
+                css: {
+                    label: "data(id)", //access the nodes data with "data(...)"
+                    // label: "data(id)", 
+                    "text-valign": "center",
+                    "text-halign": "center",
+                    height: "60px",
+                    width: "100px",
+                    shape: "rectangle",
+                    "background-color": "data(faveColor)"
+                }
+            },
+            {
+                selector: "edge",
+                css: {
+                    "curve-style": "bezier",
+                    "control-point-step-size": 40,
+                    "target-arrow-shape": "triangle"
+                }
+            }
+            ],
+            elements:data.datas
+        });
+
+        //用程式新增節點
+        try{
+        for (var i = 0; i < 10; i++) {
+            cy.add({
+                data: { id: 'node' + i }
+            }
+            );
+            var source = 'node' + i;
+            cy.add({
+                data: {
+                    id: 'edge' + i,
+                    source: source,
+                    target: (i % 2 == 0 ? 'a' : 'b')
+                }
+            });
+        }
+        }
+        catch(ex){}
+        
+        //重新排版
+        cy.layout({
+            name: "fcose"
+        }).run();
+    </script>
+
+    <!--
+    <script src="{% static 'js/func.js'%}"></script>-->
+</body>
+
+</html>
