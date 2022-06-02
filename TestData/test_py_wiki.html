@@ -1,0 +1,170 @@
+<p class="mw-empty-elt">
+</p>
+
+<p class="mw-empty-elt">
+</p>
+<p><b>Python</b> is a high-level, general-purpose programming language. Its design philosophy emphasizes code
+    readability with the use of significant indentation. Its language constructs and object-oriented approach aim to
+    help programmers write clear, logical code for small- and large-scale projects.</p>
+<p>Python is dynamically-typed and garbage-collected. It supports multiple programming paradigms, including structured
+    (particularly procedural), object-oriented and functional programming. It is often described as a "batteries
+    included" language due to its comprehensive standard library.</p>
+<p>Guido van Rossum began working on Python in the late 1980s as a successor to the ABC programming language and first
+    released it in 1991 as Python 0.9.0. Python 2.0 was released in 2000 and introduced new features such as list
+    comprehensions, cycle-detecting garbage collection, reference counting, and Unicode support. Python 3.0, released in
+    2008, was a major revision that is not completely backward-compatible with earlier versions. Python 2 was
+    discontinued with version 2.7.18 in 2020.</p>
+<p>Python consistently ranks as one of the most popular programming languages.</p>
+
+<h2>History</h2>
+<p>Python was conceived in the late 1980s by Guido van Rossum at Centrum Wiskunde &amp; Informatica (CWI) in the
+    Netherlands as a successor to the ABC programming language, which was inspired by SETL, capable of exception
+    handling and interfacing with the Amoeba operating
+    system. Its implementation began in December 1989. Van Rossum shouldered sole responsibility for the project, as the
+    lead developer, until 12 July 2018, when he announced his "permanent vacation" from his responsibilities as Python's
+    "benevolent dictator for life", a title
+    the Python community bestowed upon him to reflect his long-term commitment as the project's chief decision-maker. In
+    January 2019, active Python core developers elected a five-member Steering Council to lead the project.</p>
+<p>Python 2.0 was released on 16 October 2000, with many major new features. Python 3.0, released on 3 December 2008,
+    with many of its major features backported to Python 2.6.x and 2.7.x. Releases of Python 3 include the
+    <code>2to3</code> utility, which automates the translation of Python 2 code to Python 3.</p>
+<p>Python 2.7's end-of-life was initially set for 2015, then postponed to 2020 out of concern that a large body of
+    existing code could not easily be forward-ported to Python 3. No further security patches or other improvements will
+    be released for it. With Python 2's end-of-life, only Python 3.6.x and later are supported.
+</p>
+<p>Python 3.9.2 and 3.8.8 were expedited as all versions of Python (including 2.7) had security issues leading to
+    possible remote code execution and web cache poisoning.</p>
+
+<h2>Design philosophy and features</h2>
+<p>Python is a multi-paradigm programming language. Object-oriented programming and structured programming are fully
+    supported, and many of its features support functional programming and aspect-oriented programming (including by
+    metaprogramming and metaobjects [magic methods] ). Many other paradigms are supported via extensions, including
+    design by contract and logic programming.</p>
+<p>Python uses dynamic typing, and a combination of reference counting and a cycle-detecting garbage collector for
+    memory management. It uses dynamic name resolution (late binding), which binds method and variable names during
+    program execution.
+</p>
+<p>Its design offers some support for functional programming in the Lisp tradition. It has
+    <code>filter</code>,<code>map</code>and<code>reduce</code> functions; list comprehensions, dictionaries, sets, and
+    generator expressions. The standard library has two modules (<code>itertools</code> and <code>functools</code>) that
+    implement functional tools borrowed from Haskell and Standard ML.</p>
+<p>Its core philosophy is summarized in the document <i>The Zen of Python</i> (<i>PEP 20</i>), which includes aphorisms
+    such as:</p>
+<ul>
+    <li>Beautiful is better than ugly.</li>
+    <li>Explicit is better than implicit.</li>
+    <li>Simple is better than complex.</li>
+    <li>Complex is better than complicated.</li>
+    <li>Readability counts.</li>
+</ul>
+<p>Rather than building all of its functionality into its core, Python was designed to be highly extensible via modules.
+    This compact modularity has made it particularly popular as a means of adding programmable interfaces to existing
+    applications. Van Rossum's vision of a small core language with a large standard library and easily extensible
+    interpreter stemmed from his frustrations with ABC, which espoused the opposite approach.</p>
+<p>Python strives for a simpler, less-cluttered syntax and grammar while giving developers a choice in their coding
+    methodology. In contrast to Perl's "there is more than one way to do it" motto, Python embraces a "there should be
+    one—and preferably only one—obvious way to do it" philosophy. Alex Martelli, a Fellow at the Python Software
+    Foundation and Python book author, wrote: "To describe something as 'clever' is <i>not</i> considered a compliment
+    in the Python culture."</p>
+<p>Python's developers strive to avoid premature optimization, and reject patches to non-critical parts of the CPython
+    reference implementation that would offer marginal increases in speed at the cost of clarity. When speed is
+    important, a Python programmer can move time-critical functions to extension modules written in languages such as C;
+    or use PyPy, a just-in-time compiler. Cython is also available, which translates a Python script into C and makes
+    direct C-level API calls into the Python interpreter.
+</p>
+<p>Python's developers aim for it to be fun to use. This is reflected in its name—a tribute to the British comedy group
+    Monty Python—and in occasionally playful approaches to tutorials and reference materials, such as examples that
+    refer to spam and eggs (a reference to a Monty Python sketch) instead of the standard foo and bar.</p>
+<p>A common neologism in the Python community is <i>pythonic</i>, which has a wide range of meanings related to program
+    style. "Pythonic" code may use Python idioms well, be natural or show fluency in the language, or conform with
+    Python's minimalist philosophy and emphasis on readability. Code that is difficult to understand or reads like a
+    rough transcription from another programming language is called <i>unpythonic</i>.</p>
+<p>Python users and admirers, especially those considered knowledgeable or experienced, are often referred to as
+    <i>Pythonistas</i>.</p>
+
+<h2>Syntax and semantics</h2>
+<link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1033289096">
+<p>Python is meant to be an easily readable language. Its formatting is visually uncluttered, and often uses English
+    keywords where other languages use punctuation. Unlike many other languages, it does not use curly brackets to
+    delimit blocks, and semicolons after statements are allowed but rarely used. It has fewer syntactic exceptions and
+    special cases than C or Pascal.</p>
+
+<h3>Indentation</h3>
+<link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1033289096">
+<p>Python uses whitespace indentation, rather than curly brackets or keywords, to delimit blocks. An increase in
+    indentation comes after certain statements; a decrease in indentation signifies the end of the current block. Thus,
+    the program's visual structure accurately represents its semantic structure. This feature is sometimes termed the
+    off-side rule. Some other languages use indentation this way; but in most, indentation has no semantic meaning. The
+    recommended indent size is four spaces.</p>
+
+<h3>Statements and control flow</h3>
+<p>Python's statements include:
+</p>
+<ul>
+    <li>The assignment statement, using a single equals sign <code>=</code></li>
+    <li>The <code>if</code> statement, which conditionally executes a block of code, along with <code>else</code> and
+        <code>elif</code> (a contraction of else-if)</li>
+    <li>The <code>for</code> statement, which iterates over an iterable object, capturing each element to a local
+        variable for use by the attached block</li>
+    <li>The <code>while</code> statement, which executes a block of code as long as its condition is true</li>
+    <li>The <code>try</code> statement, which allows exceptions raised in its attached code block to be caught and
+        handled by <code>except</code> clauses; it also ensures that clean-up code in a <code>finally</code> block is
+        always run regardless of how the block exits</li>
+    <li>The <code>raise</code> statement, used to raise a specified exception or re-raise a caught exception</li>
+    <li>The <code>class</code> statement, which executes a block of code and attaches its local namespace to a class,
+        for use in object-oriented programming</li>
+    <li>The <code>def</code> statement, which defines a function or method</li>
+    <li>The <code>with</code> statement, which encloses a code block within a context manager (for example, acquiring a
+        lock before it is run, then releasing the lock; or opening and closing a file), allowing
+        resource-acquisition-is-initialization (RAII)-like behavior and replacing a common try/finally idiom</li>
+    <li>The <code>break</code> statement, which exits a loop</li>
+    <li>The <code>continue</code> statement, which skips the current iteration and continues with the next</li>
+    <li>The <code>del</code> statement, which removes a variable—deleting the reference from the name to the value, and
+        producing an error if the variable is referred to before it is redefined</li>
+    <li>The <code>pass</code> statement, serving as a NOP, syntactically needed to create an empty code block</li>
+    <li>The <code>assert</code> statement, used in debugging to check for conditions that should apply</li>
+    <li>The <code>yield</code> statement, which returns a value from a generator function (and also an operator); used
+        to implement coroutines</li>
+    <li>The <code>return</code> statement, used to return a value from a function</li>
+    <li>The <code>import</code> statement, used to import modules whose functions or variables can be used in the
+        current program</li>
+</ul>
+<p>The assignment statement (<code>=</code>) binds a name as a reference to a separate, dynamically-allocated object.
+    Variables may subsequently be rebound at any time to any object. In Python, a variable name is a generic reference
+    holder without a fixed data type; however, it always refers to <i>some</i> object with a type. This is called
+    dynamic typing—in contrast to statically-typed languages, where each variable may contain only a value of a certain
+    type.
+</p>
+<p>Python does not support tail call optimization or first-class continuations, and, according to van Rossum, it never
+    will. However, better support for coroutine-like functionality is provided by extending Python's generators. Before
+    2.5, generators were lazy iterators; data was passed unidirectionally out of the generator. From Python 2.5 on, it
+    is possible to pass data back into a generator function; and from version 3.3, it can be passed through multiple
+    stack levels.</p>
+
+<h3>Expressions</h3>
+<p>Some Python expressions are similar to those in languages such as C and Java, while some are not:
+</p>
+<ul>
+    <li>Addition, subtraction and multiplication are the same, but the behavior of division differs. There are two types
+        of divisions in Python: floor division (or integer division) <code>//</code> and
+        floating-point<code>/</code>division. Python also uses the <code>**</code> operator for exponentiation.</li>
+    <li>The <code>@</code> infix operator was introduced in Python 3.5. It is intended to be used by libraries such as
+        NumPy for matrix multiplication.</li>
+    <li>The syntax <code>:=</code>, called the "walrus operator", was introduced in Python 3.8. It assigns values to
+        variables as part of a larger expression.</li>
+    <li>In Python, <code>==</code> compares by value, versus Java, which compares numerics by value and objects by
+        reference. Python's <code>is</code> operator may be used to compare object identities (comparison by reference),
+        and comparisons may be chained—for example, <code class="mw-highlight mw-highlight-lang-python mw-content-ltr"
+            id="" style=""
+            dir="ltr"><span>a</span> <span>&lt;=</span> <span>b</span> <span>&lt;=</span> <span>c</span></code>.</li>
+    <li>Python uses <code>and</code>, <code>or</code>, and <code>not</code> as boolean operators rather than the
+        symbolic <code>&amp;&amp;</code>, <code>||</code>, <code>!</code> in Java and C.</li>
+    <li>Python has a type of expression called a <i>list comprehension</i>, as well as a more general expression called
+        a <i>generator expression</i>.</li>
+    <li>Anonymous functions are implemented using lambda expressions; however, there may be only one expression in each
+        body.</li>
+    <li>Conditional expressions are written as <code class="mw-highlight mw-highlight-lang-python mw-content-ltr" id=""
+            style="" dir="ltr"><span>x</span> <span>if</span> <span>c</span> <span>else</span> <span>y</span></code>
+        (different in order of operands from the <code>c ? x : y</code> operator common to many other languages).</li>
+    <li>Python makes a distinction between lists and tuples. Lists are written as <code
+            class="mw-highlight mw-highlight-lang-python mw-content-ltr" id="" st
