@@ -1,0 +1,7 @@
+Django==4.0.4
+spacy==2.3.7
+numpy
+wikipedia==1.4.0
+Wikipedia-API==0.5.4
+cython>=0.25
+pytest

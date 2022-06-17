@@ -8,8 +8,8 @@
     {% block mainHeadInclude %}
     {% endblock mainHeadInclude %}
     -->
-
-
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.21.1/cytoscape.min.js"
         integrity="sha512-H44mkyNG9R5Y8NDjFoZ0lnMGgxfsbfbuewUNJJjecVOUzR3n/JL8+UFc07pP74T5tA+aGOMKCwazdDYwoquE8g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -22,12 +22,112 @@
             left: 0px;
         }
     </style>
+
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+   
 </head>
 
-<body>
-    <!--
-    {{nodes}}-->
-    <div id="cy"></div>
+<body oncontextmenu="return false;">
+
+    <script>
+        var data = JSON.parse("{{elements|escapejs}}");
+        console.log(data);    
+    </script>
+
+    <div id="cy-floating-window">
+        <div class="floating-window-item" onclick="CreateBlankNode()">新增節點</div>
+        <div class="floating-window-item" id="floating-window-create-edge" onclick="CreateBlankEdge()">建立連結</div>
+    </div>
+
+    <!--側邊導覽-->
+    <div class="side_nav">
+        <div class="side__nav__title">
+            Wiki語意懶人包生產器
+        </div>
+        <!-- 輸入 -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script>
+            function SendSearch() {
+                var text = document.getElementById('search_text').value;
+                console.log('send ' +text);
+                $.ajax({
+                    type: "POST",
+                    url: '{{ ' /search/ ' }}',
+                    data: { csrfmiddlewaretoken: '{{ csrf_token }}', text: text },
+                    success: function callback(response) {
+
+                        var data = JSON.parse(response)
+                        SetScape(data)
+                        //alert(data);
+                        console.log(data);
+                    }
+                });
+                //開啟遮擋
+                $("#loading").show()
+            }
+        </script>
+        <div class="side__nav_input_container">
+            <input type="text" id="search_text" placeholder="輸入搜尋Wiki關鍵字">
+            <button type="submit" id="button" value="process" onclick="SendSearch()">搜尋</button>
+        </div>
+
+        <!-- 所選節點 -->
+        <h4 class="ui horizontal divider">屬性</h4>
+        <div class="side__nav_node_property_containre">
+            <!-- id 屬性 -->
+            <div class="side__nav_property">
+                <label for="side__nav_node_id">id</label>
+                <input name="side__nav_node_id" id="side__nav_node_id" disabled>
+            </div>
+            <!-- name 屬性 -->
+            <div class="side__nav_property">
+                <label for="side__nav_node_name">name</label>
+                <input name="side__nav_node_name" id="side__nav_node_name">
+            </div>
+            <!-- 顏色 屬性 -->
+            <div class="side__nav_property">
+                <label for="side__nav_node_color">color</label>
+                <input name="side__nav_node_color" id="side__nav_node_color">
+            </div>
+            <!-- 操作 -->
+            <div class="side__nav_property">
+                <button class="ui button" onclick="SetNodeProperty()">確認</button>
+                <button class="ui red button" onclick="DeleteNode()">刪除</button>
+            </div>
+        </div>
+
+        <!-- 其他選單 -->
+        <h4 class="ui horizontal divider">選項</h4>
+        <div class="side__nav_button_groups">
+            <button class="ui button" onclick="ClearGraph()">清除</button>
+            <label class="ui button" for="json_input">匯入</label>
+            <input type="file" id="json_input" name="json_input" style="display: none;" accept="text/*">
+            <button class="ui button" onclick="ExportGraph()">匯出檔案</button>
+            <button class="ui button" onclick="ExportGraphPng()">寫出圖片</button>
+        </div>
+
+
+    </div>
+    <!--中間 主要節點-->
+    <div class="main__container">
+        <!-- 知識圖譜 -->
+        <div id="cy">
+            <div id="loading" class="ui active dimmer">
+                <div class="ui massive text loader">載入中</div>
+            </div>
+        </div>
+        <!--
+        <div class="footer__cmd">
+            123
+        </div>
+        -->
+    </div>
     <!--
     {% block mainBody %}
     {% endblock mainBody %}
@@ -38,63 +138,9 @@
     <script src="https://unpkg.com/cose-base/cose-base.js"></script>
     <script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
 
-    <script>
-        var data = JSON.parse("{{elements|escapejs}}");
-        console.log(data);
-        var cy = cytoscape({
-            container: document.getElementById('cy'),
-            style: [{
-                selector: "node",
-                css: {
-                    label: "data(id)", //access the nodes data with "data(...)"
-                    // label: "data(id)", 
-                    "text-valign": "center",
-                    "text-halign": "center",
-                    height: "60px",
-                    width: "100px",
-                    shape: "rectangle",
-                    "background-color": "data(faveColor)"
-                }
-            },
-            {
-                selector: "edge",
-                css: {
-                    "curve-style": "bezier",
-                    "control-point-step-size": 40,
-                    "target-arrow-shape": "triangle"
-                }
-            }
-            ],
-            elements:data.datas
-        });
+    <script src="{% static 'js/func.js'%}"></script>
 
-        //用程式新增節點
-        try{
-        for (var i = 0; i < 10; i++) {
-            cy.add({
-                data: { id: 'node' + i }
-            }
-            );
-            var source = 'node' + i;
-            cy.add({
-                data: {
-                    id: 'edge' + i,
-                    source: source,
-                    target: (i % 2 == 0 ? 'a' : 'b')
-                }
-            });
-        }
-        }
-        catch(ex){}
-        
-        //重新排版
-        cy.layout({
-            name: "fcose"
-        }).run();
-    </script>
 
-    <!--
-    <script src="{% static 'js/func.js'%}"></script>-->
 </body>
 
 </html>

@@ -20,5 +20,6 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),    
-    path("index/" , views.index)  #re_path使用regex
+    path("index/" , views.index),  #re_path使用regex
+    path("search/" , views.DoSearch )
 ]

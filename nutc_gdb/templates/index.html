@@ -2,89 +2,8 @@
 
 {% block mainHeadInclude %}
 
-<script src="https://unpkg.com/layout-base/layout-base.js"></script>
-<script src="https://unpkg.com/cose-base/cose-base.js"></script>
-<script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
-<!--
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.5.0/bluebird.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
-<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
-<script src="https://cytoscape.org/cytoscape.js-euler/cytoscape-euler.js"></script>-->
 {% endblock mainHeadInclude %}
 
 {% block mainBody %}
 
-{#{data}#}
-
-<script>
-    
-    //cytoscape.use(euler);
-    var data = JSON.parse("{{elements|escapejs}}");
-    //console.log(data)
-    //console.log(data.datas)
-
-    var cy = cytoscape({
-        container: document.getElementById('cy'),
-        elements: data.datas,
-        layout: {
-            name: 'fcose',
-            randomize: true,
-            animate: false,
-            gravity: -100000000000
-
-            // some more options here...
-        },
-        style: [{
-            selector: "node",
-            css: {
-                label: "data(id)", //access the nodes data with "data(...)"
-                // label: "data(id)", 
-                "text-valign": "center",
-                "text-halign": "center",
-                height: "60px",
-                width: "100px",
-                shape: "rectangle",
-                "background-color": "data(faveColor)"
-            }
-        },
-        {
-            selector: "edge",
-            css: {
-                "curve-style": "bezier",
-                "control-point-step-size": 40,
-                "target-arrow-shape": "triangle"
-            }
-        }
-        ],
-    });
-    /*
-    //重新排版
-    cy.layout({
-        name: 'fcose'
-    }).run();*/
-        /*
-document.addEventListener('DOMContentLoaded', function () {
-
-    var cy = window.cy = cytoscape({
-        container: document.getElementById('cy'),
-        elements: data.datas,
-        autounselectify: true,
-
-        boxSelectionEnabled: false,
-
-        layout: {
-            name: 'fcose',
-            randomize: true,
-            animate: false,
-            gravity: -100000000000
-
-            // some more options here...
-        },
-
-
-    })
-});*/
-
-
-</script>
 {% endblock mainBody %}

@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-+8gunga^^0gi1!y+b935ov84kw^po2o*0z0mgu(^&d-%oz!-n3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','gd-docker.herokuapp.com']
 
 
 # Application definition
@@ -50,7 +51,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'nutc_gdb.urls'
+ROOT_URLCONF = 'src.urls'
 
 TEMPLATES = [
     {
@@ -68,7 +69,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'nutc_gdb.wsgi.application'
+WSGI_APPLICATION = 'src.wsgi.application'
 
 
 # Database

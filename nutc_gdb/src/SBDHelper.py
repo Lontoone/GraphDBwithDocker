@@ -1,5 +1,4 @@
 #import pysbd
-from email.policy import default
 import spacy
 import time
 from spacy.tokens import Span

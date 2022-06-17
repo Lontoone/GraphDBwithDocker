@@ -79,7 +79,8 @@ class NodeSpliter:
             
             else:
                 # 重設受詞為該句主詞
-                self.nounBuffer=chunks[j].lemma_
+                #self.nounBuffer=chunks[j].lemma_
+                self.nounBuffer=chunks[j].text
                 endIndex=j
                 break
             

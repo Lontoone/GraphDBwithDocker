@@ -1,26 +1,31 @@
-from unicodedata import name
+import math
+import spacy
 from spacy.tokens import Doc
+import neuralcoref
 from src.ARHelper import AnaphoraResolutionHelper
 #from src.Neo4jHelper import Neo4JHelper
 from src.NodePair import Node, NodePair, NodeSpliter
 from src.SBDHelper import SbdHelper
 from src.WikiHelper import wikiHelper
-import spacy
+from src.Id_tdfHelper import idfHelper
+from src.TextCleaner import textCleaner
 import numpy as np
 import neuralcoref
 from spacy.matcher import Matcher
 
-def main():
+def main(keyword):
     # 取得文本
     wiki = wikiHelper()
-    text =wiki.GetPage()
+    text =wiki.GetPage(topic=keyword)
     
     #text =wiki.GetPage("Semantic_Web")
     #text =wiki.GetPage("Caracalla")
     #text='Python supports multiple programming paradigms, including structured (particularly procedural), object-oriented and functional programming.'
     
     #print("取得文本 ", text)
-    # 文本清理    
+    # 文本清理
+    tc=textCleaner(text)
+    cleanedText=tc.cleanText()
     
     #---------- 斷句 --------------
     nlp = spacy.load("en_core_web_sm")    
@@ -30,7 +35,7 @@ def main():
     Doc.set_extension("briefSents" , default=None , force=True)
     nlp.add_pipe(sbd.briefSbd, after="sentencizer")
     
-    doc= nlp(text)    
+    doc= nlp(cleanedText)    
     #matches = matcher(doc)
     
     print("句子數 ",len(list(doc.sents)), len(doc._.briefSents))    
@@ -113,7 +118,48 @@ def main():
             print()
         print()
             
-    return nodePairs;     
+    #return nodePairs;     
+    
+    #-------------- id-tdf ---------------------    
+    idf_helper= idfHelper()    
+    idf_helper.count(nodePairs)
+    #mainTopic=nlp_full("Python")
+    finalNodes=[]
+    for pairs in nodePairs[:]:        
+        for pair in pairs:                        
+            print(pair.entity1.name,"-> [",pair.relation,"] ->",pair.entity2.name)
+                     
+            '''
+            '''
+            #IDF: log((Total number of sentences (documents))/(Number of sentences (documents) containing the word))
+            _idf1 = math.log10(idf_helper.sentCount / idf_helper.words_count_dict[pair.entity1.name])
+            _idf2 = math.log10(idf_helper.sentCount / idf_helper.words_count_dict[pair.entity2.name])
+            
+            print(_idf1,_idf2)
+            
+            doc_1 = nlp_full(pair.entity1.name)
+            doc_2 = nlp_full(pair.entity2.name)
+            #詞向量
+            #entity1_word_vec=np.asarray(doc_1.vector)
+            #entity2_word_vec=np.asarray(doc_2.vector)
+            
+            #sim=mainTopic.similarity(doc_1)
+            sim=doc_1.similarity(doc_2)                                  
+            print(sim)
+            
+            #if(_idf1 >= 0.8 and _idf2 >=0.8  and sim <0.9 and sim >0.1):
+            if(sim <0.9 and sim >0.1):
+                finalNodes.append(pair);
+            else:
+                break
+            
+            print() 
+            
+            
+    #print()
+    return finalNodes
+
+
     #-------------- 上傳 Neo4j ---------------------
     '''
     db= Neo4JHelper()
