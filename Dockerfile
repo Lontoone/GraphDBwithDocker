@@ -10,10 +10,13 @@ RUN pip install -r requirements.txt
 #RUN mkdir -p /nutc_gdb/src/
 #WORKDIR /docker_api/nutc_gdb/src
 #RUN pip uninstall neuralcoref
-#RUN git clone https://github.com/huggingface/neuralcoref.git
+WORKDIR /docker_api/nutc_gdb/src
+RUN git clone https://github.com/huggingface/neuralcoref.git
 WORKDIR /docker_api/nutc_gdb/src/neuralcoref
-RUN pip install -r requirements.txt
-RUN pip install -e .
+### WORKDIR /docker_api/nutc_gdb/src/neuralcoref
+
+#RUN pip install -r requirements.txt
+#RUN pip install -e .
 RUN python setup.py install
 RUN python setup.py build
 
