@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-+8gunga^^0gi1!y+b935ov84kw^po2o*0z0mgu(^&d-%oz!-n3
 DEBUG = True
 
 #ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost','gd-docker.herokuapp.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','gd-docker.herokuapp.com','knowledgegraphmaker.onrender.com']
 
 
 # Application definition
