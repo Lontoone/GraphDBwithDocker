@@ -7,8 +7,8 @@ class Neo4JHelper:
     def __init__(self):
         #連線
         self.uri ="neo4j://localhost:7687"
-        self.driver= GraphDatabase.driver(self.uri, auth=("neo4j", "l0933209916"))
-        self.graph=Graph(self.uri,auth=('neo4j','l0933209916'))
+        self.driver= GraphDatabase.driver(self.uri, auth=("neo4j", "pwd"))
+        self.graph=Graph(self.uri,auth=('neo4j','pwd'))
         #self.nodePairs=nodePairs
   
     def writeNode(self,nodePairs):    
