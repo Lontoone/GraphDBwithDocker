@@ -15,10 +15,8 @@ class LsaHelper:
                     continue
                 #剩下的加入字典                
                 #self.words_count_dict[word.lemma_.lower()]=0
-                self.words_count_dict[word.lower_]=0
-                
-                    
-        print(self.words_count_dict)
+                self.words_count_dict[word.lower_]=0                    
+        
     
     def getSentencesImportence(self , sents):
         #Sentences embedding

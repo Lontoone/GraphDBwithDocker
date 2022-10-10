@@ -50,8 +50,7 @@ def main(nlp,_cleanText,preserveRate ):
     doc= nlp(cleanedText)    
     disabled.restore()
     
-    print("句子數 ",len(list(doc.sents)), len(doc._.briefSents))    
-    print(doc._.briefSents [:15])
+    print("句子數 ",len(list(doc.sents)), len(doc._.briefSents))        
     
     #--------- 回指消解 ------------    
     print("--------- 回指消解 ------------")
@@ -111,16 +110,14 @@ def main(nlp,_cleanText,preserveRate ):
     disabled.restore()
     
     #-------------- 文本相似度 ---------------------    
-    #finalNodes = pairs_trim([p.pairs for p in nodePairs])    
-    #print("[pair trim] 刪除 " ,len(nodePairs) - len(finalNodes),'個')
-    
+   
     finalNodes=[]    
     i=0
     for pairs in nodePairs[:]:        
         for pair in pairs:           
             finalNodes.append(pair)
             print(pair.entity1.name,"-> [",pair.relation,"] ->",pair.entity2.name)    
-    finalNodes = pairs_trim(finalNodes)
+    #finalNodes = pairs_trim(finalNodes) #TODO:有Error
     #finalNodes = [p for p in finalNodes if p.isRemoved==False]
     #-------------- 上傳 Neo4j ---------------------
     '''

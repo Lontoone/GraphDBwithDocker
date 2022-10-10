@@ -129,6 +129,7 @@ def pairs_trim(pairs):
                     pairs[i].entity1.name = pairs[j].entity1.name
                 print(" [合併] 幾乎重複的node ", sent1, sent2)
             elif sim>0.25:
+                
                 #建立關聯
                 if isOrdered: #短的在前
                     newPair=NodePair(Node(sent1),Node(sent2),"about")
@@ -136,8 +137,9 @@ def pairs_trim(pairs):
                     newPair=NodePair(Node(sent2),Node(sent1),"about")
                     
                 print(" [新增] 新關聯 ", sent1, sent2)
-                newPairsBuffer.append(newPair)                    
+                newPairsBuffer.append(newPair)
             pass
         pass
-    pairs.extend(newPairsBuffer)
+    if len(newPairsBuffer)>0:
+        pairs.extend(newPairsBuffer)
     return pairs
