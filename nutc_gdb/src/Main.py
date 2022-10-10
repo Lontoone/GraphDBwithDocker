@@ -1,176 +1,169 @@
-import math
+
 import spacy
 from spacy.tokens import Doc
 import neuralcoref
 from src.ARHelper import AnaphoraResolutionHelper
 #from src.Neo4jHelper import Neo4JHelper
-from src.NodePair import Node, NodePair, NodeSpliter
+from src.NodePair import Node, NodePair, NodeSpliter,pairs_trim
 from src.SBDHelper import SbdHelper
 from src.WikiHelper import wikiHelper
 from src.Id_tdfHelper import idfHelper
 from src.TextCleaner import textCleaner
-import numpy as np
+from src.LsaHelper import LsaHelper
 import neuralcoref
-from spacy.matcher import Matcher
 
-def main(keyword):
-    # 取得文本
-    wiki = wikiHelper()
-    text =wiki.GetPage(topic=keyword)
-    
-    #text =wiki.GetPage("Semantic_Web")
-    #text =wiki.GetPage("Caracalla")
-    #text='Python supports multiple programming paradigms, including structured (particularly procedural), object-oriented and functional programming.'
-    
-    #print("取得文本 ", text)
-    # 文本清理
-    tc=textCleaner(text)
-    cleanedText=tc.cleanText()
-    
-    #---------- 斷句 --------------
+import re
+
+#nlp=spacy.blank('en')
+def setupNlp():    
     nlp = spacy.load("en_core_web_sm")    
     nlp.add_pipe(nlp.create_pipe('sentencizer'))
     #--------- 合併斷句 ------------
     sbd= SbdHelper()
     Doc.set_extension("briefSents" , default=None , force=True)
-    nlp.add_pipe(sbd.briefSbd, after="sentencizer")
+    nlp.add_pipe(sbd.briefSbd, after="sentencizer",name="sbd")
     
+    # ar 處理
+    #nlp_ar.remove_pipe('sbd')
+    Doc.set_extension("referedSents" , default=None , force=True)
+    neuralcoref.add_to_pipe(nlp, name="neuralcoref",after="briefSents")    
+    ar = AnaphoraResolutionHelper()    
+    nlp.add_pipe(ar.arReplacement,name="arReplacement", after="neuralcoref")  
+    
+    return nlp
+    # 文本後處理
+    #nlp.remove_pipe('sentencizer')
+    
+    
+    
+
+def main(nlp,_cleanText,preserveRate ):
+    # 取得文本
+    cleanedText = _cleanText
+    #cleanParas= tc.cleanParagraphs()
+    
+    #---------- 斷句 --------------
+    
+    #--------- 合併斷句 ------------
+    
+    disabled = nlp.disable_pipes(["neuralcoref","arReplacement"]);
     doc= nlp(cleanedText)    
-    #matches = matcher(doc)
+    disabled.restore()
     
     print("句子數 ",len(list(doc.sents)), len(doc._.briefSents))    
-    #print(doc._.briefSents [:15])
+    print(doc._.briefSents [:15])
     
-    #--------- 回指消解 ------------
-    Doc.set_extension("referedSents" , default=None , force=True)
+    #--------- 回指消解 ------------    
     print("--------- 回指消解 ------------")
-    #nlp.remove_pipe('sentencizer') ## TODO: Load pipeline by name....
-    nlp_ar=spacy.load("en_core_web_sm")
-    neuralcoref.add_to_pipe(nlp_ar, name="neuralcoref")    
-    ar = AnaphoraResolutionHelper()    
-    nlp_ar.add_pipe(ar.arReplacement,name="arReplacement", after="neuralcoref")  
-    #nlp_ar.add_pipe(nlp_ar.create_pipe('sentencizer') , after="arReplacement")  
     
-    doc_array= []
+    disabled = nlp.disable_pipes(["sbd"])
+    
     clean_full_text= ""
-    for sent in doc._.briefSents[:20]:
-        sent_doc= nlp_ar(sent.text)
-        #print("------- ar 結果--------")
-        #print(sent_doc._.referedSents)
-        doc_array.append(sent_doc)
+    for sent in doc._.briefSents[:]:
+        sent_doc= nlp(sent.text)    
         clean_full_text+=sent_doc._.referedSents
-        #print(sent_doc._.coref_clusters)
-        
+    disabled.restore()
+    
     print("------- ar doc長度--------")
     #print(len(doc_array))
     print("------- 乾淨full文本 --------")
     #print(clean_full_text)
-    
-    
-    
+   
     #----------- 文本後處理 ?----------------
     
-    # full process
-    nlp_full = spacy.load("en_core_web_sm")    
+    disabled = nlp.disable_pipes(["sentencizer","sbd","neuralcoref","arReplacement"]);
+    nlp_full = nlp
     full_doc = nlp_full(clean_full_text)
     sents= list(full_doc.sents)
-    '''
-    for sent in list(full_doc.sents)[:10]:
-        print()
-        print(sent)    
-    '''
+    
+    print("------------ LSA -------------")
+    lsa = LsaHelper(full_doc) #初始化辭庫
+    lsa.getSentencesImportence(sents)
+    #lsa.drawFeatureHeatMap() #畫關聯圖
+    print("------------ LSA剔除 -------------")
+    filtered_sents=[]
+    threshold=lsa.getPassThreshold(preserveRate)
+    #threshold = 0.45
+    for i , val in enumerate(lsa.sents_avgSim):
+        if val>=threshold:
+            filtered_sents.append(sents[i])
+        else:
+            print("拒絕 ", sents[i].text)
+    
+    print("閥值",threshold,"接受率", sum(lsa.sents_avgSim>=threshold) / len(lsa.sents_avgSim))
+
     
     # 知識抽取    
     #------------- 實體 ------------------    
     print("------- Noun chunks --------")
     nodePairs=[]
-    for sent in sents:
-        print(sent.text)
-        print()
+    for sent in filtered_sents:
+        print("保留",sent.text)
         sent_doc=nlp_full(sent.text)
         nuns=list(sent_doc.noun_chunks)
         
-        spliter=NodeSpliter(nuns)
+        # 跟merge_nps 工作重複? => 沒有，這個效果比較好?
+        spliter=NodeSpliter(nuns) #合併noun chunks
         pairs=spliter.split()
-        if pairs:
-            nodePairs.append(pairs[:])
-        
-        '''
-        nodes=[]
-        for chunk in nuns:            
-            print(chunk.text, chunk.root.text, chunk.root.dep_,chunk.root.head.text)
-            #設定node屬性...
-            _node=Node(name=chunk.lemma_ , verb=chunk.root.head.lemma_)
-            nodes.append(_node)
-            
-        #比對 node的動詞，連接node成nodePair        
-        #nodes.sort(key=lambda n:(n.verb,n.name) ,reverse=True)#依照verb、index排序
-        for i in range(0,len(nodes)-1,2):
-            _pair=NodePair(nodes[i],nodes[i+1],nodes[i].verb)
-            nodePairs.append(_pair)
-        '''
-            
-    print("sent長度",len(sent_doc),"nodePair長度",len(nodePairs))
-    #驗證
-    for pairs in nodePairs[:20]:
-        for pair in pairs:
-            print(pair.entity1.name,"-> [",pair.relation,"] ->",pair.entity2.name)
-            print()
-        print()
-            
-    #return nodePairs;     
+        if pairs:    
+            nodePairs.append(pairs[:])              
     
-    #-------------- id-tdf ---------------------    
-    idf_helper= idfHelper()    
-    idf_helper.count(nodePairs)
-    #mainTopic=nlp_full("Python")
-    finalNodes=[]
+    disabled.restore()
+    
+    #-------------- 文本相似度 ---------------------    
+    #finalNodes = pairs_trim([p.pairs for p in nodePairs])    
+    #print("[pair trim] 刪除 " ,len(nodePairs) - len(finalNodes),'個')
+    
+    finalNodes=[]    
+    i=0
     for pairs in nodePairs[:]:        
-        for pair in pairs:                        
-            print(pair.entity1.name,"-> [",pair.relation,"] ->",pair.entity2.name)
-                     
-            '''
-            '''
-            #IDF: log((Total number of sentences (documents))/(Number of sentences (documents) containing the word))
-            _idf1 = math.log10(idf_helper.sentCount / idf_helper.words_count_dict[pair.entity1.name])
-            _idf2 = math.log10(idf_helper.sentCount / idf_helper.words_count_dict[pair.entity2.name])
-            
-            print(_idf1,_idf2)
-            
-            doc_1 = nlp_full(pair.entity1.name)
-            doc_2 = nlp_full(pair.entity2.name)
-            #詞向量
-            #entity1_word_vec=np.asarray(doc_1.vector)
-            #entity2_word_vec=np.asarray(doc_2.vector)
-            
-            #sim=mainTopic.similarity(doc_1)
-            sim=doc_1.similarity(doc_2)                                  
-            print(sim)
-            
-            #if(_idf1 >= 0.8 and _idf2 >=0.8  and sim <0.9 and sim >0.1):
-            if(sim <0.9 and sim >0.1):
-                finalNodes.append(pair);
-            else:
-                break
-            
-            print() 
-            
-            
-    #print()
-    return finalNodes
-
-
+        for pair in pairs:           
+            finalNodes.append(pair)
+            print(pair.entity1.name,"-> [",pair.relation,"] ->",pair.entity2.name)    
+    finalNodes = pairs_trim(finalNodes)
+    #finalNodes = [p for p in finalNodes if p.isRemoved==False]
     #-------------- 上傳 Neo4j ---------------------
     '''
-    db= Neo4JHelper()
-    db.writeNode(nodePairs)
-    '''
-        
-            
-    
-
-    # 相似度計算
+    if writeDB:
+        db= Neo4JHelper()
+        #db.writeNode(nodePairs)
+        db.writeNode(finalNodes)
+    '''        
     # 得出nodes....繼續
+    return finalNodes
+
+async def doProcess(nlp,pageTitle , itLeft , callback,preserveRate=0.1):
+    if (itLeft<=0):
+        return;
+    
+    wiki = wikiHelper()
+#NLP
+    text= wiki.GetPage(pageTitle)
+    tc=textCleaner(text)
+    cleanText = tc.cleanText(text);
+    nodes = main(nlp,cleanText,preserveRate)
+    callback(nodes)
+        
+    #爬蟲
+    links = wiki.GetLinks()
+    relativeLinks=[]
+    for pair in nodes:
+        _ent1_pureText= re.sub(r"[_\W]","",pair.entity1.name).lower()
+        _ent2_pureText= re.sub(r"[_\W]","",pair.entity2.name).lower()                
+        for link in links:
+            _lk_pureText=re.sub(r"\(.*\)" , "" , link).lower()
+            if _lk_pureText in _ent1_pureText or _lk_pureText in _ent2_pureText:                
+                relativeLinks.append(link)
+        
+                
+            #print(pair.entity1.name,"-> [",pair.relation,"] ->",pair.entity2.name)       
+    relativeLinks =  list(dict.fromkeys(relativeLinks)) #移除重複的
+    print("==================",itLeft," :相關 link ", relativeLinks,"=====================")
+    for link in relativeLinks:
+        await doProcess(nlp,link,(itLeft-1),callback,preserveRate)        
+    pass
 
 if __name__=="__main__":
-    main()
+    setupNlp()
+    MAX_IT=2
+    doProcess("Sword_Art_Online",MAX_IT);

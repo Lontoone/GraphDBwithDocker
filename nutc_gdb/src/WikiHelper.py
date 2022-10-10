@@ -1,6 +1,8 @@
 import wikipediaapi
 
 class wikiHelper:
+    def __init__(self):
+        self.page=""
     def GetPage(self, topic='Python_(programming_language)', lang='en'):
         '''
         wiki_wiki = wikipediaapi.Wikipedia('en')
@@ -16,10 +18,19 @@ class wikiHelper:
             
         )
         p_html = wiki_html.page(topic)
+        self.page=p_html
         if(p_html.exists()):
             # print(p_html.text)
             return p_html.text
-        
+        else:
+            pass
+            #TODO: page 不存在 callback
+    
+    def GetLinks(self):
+        if self.page!='':
+            return self.page.links.keys()
+        else :
+            return ""
 
 
 def main():
