@@ -41,9 +41,10 @@ class NodeSpliter:
             #----------- 找relation-------------            
             obj_chunk=self.chunks[min(i+end ,len(self.chunks)-1)] #用obj所屬的chunk的動詞決定   
             for j_chunks in self.chunks[i:]:                
-                if j_chunks.root.head.pos_  in ["VERB","ADP","SCONJ"]:
-                    if j_chunks.root.head.dep_ not in ["pcomp" , "acl"]:
-                        self.rootVerb=j_chunks.root.head.lemma_
+                if j_chunks.root.head.pos_  in ['AUX',"VERB","ADP","SCONJ"]:
+                    if j_chunks.root.head.dep_ not in ["pcomp" , "acl",'advcl']:
+                        #self.rootVerb=j_chunks.root.head.lemma_
+                        self.rootVerb=j_chunks.root.head.lower_
                         break
                             
             
@@ -67,22 +68,21 @@ class NodeSpliter:
     def findNounRange(self,chunks):
         #self.nounBuffer=""
         if len(chunks)==1:
-           #return chunks[0].lemma_ , len(self.chunks)
-           return chunks[0].lower_ , len(self.chunks)
+           return chunks[0].lemma_ , len(self.chunks)
        
         endIndex=0
         j=0
         while j <len(chunks): 
             print("find noun range ", self.nounBuffer) 
             c=chunks[j]
-            #direct object =>結束
-            #_text=c.lemma_
-            _text=c.lower_
+            #direct object或PROPN(專有名詞) =>結束
+            _text=c.lemma_
+            #_text=c.lower_
             print("current chunks ", _text) 
-            if c.root.dep_ in ["dobj","nsubj"]:            
+            if c.root.dep_ in ["dobj","nsubj",'attr'] or c.root.pos_ in ["PROPN"]:            
                 #self.nounBuffer+=chunks[j].lemma_+" "
                 # ====== 判斷head是否為形容詞 =======
-                if c.root.head.dep_=="pcomp": #後綴用
+                if c.root.head.dep_ in ["pcomp",'advcl']: #後綴用
                     self.nounBuffer= self.nounBuffer+" "+ _text +" " + c.root.head.text
                 elif c.root.head.dep_ in ["acl","prep"]: #前綴用
                     self.nounBuffer=  self.nounBuffer+c.root.head.text+" "+_text
@@ -95,9 +95,9 @@ class NodeSpliter:
                 break
             
             elif c.root.dep_ =="pobj":
-                self.nounBuffer =_text+" "+self.nounBuffer              
+                self.nounBuffer =_text+" "+self.nounBuffer               
             print()
-          
+           
             j+=1
         endIndex=j
         print('找到obj: ',self.nounBuffer)
@@ -105,31 +105,36 @@ class NodeSpliter:
     
 def pairs_trim(pairs):    
     newPairsBuffer=[]
-    for i in range(0,len(pairs)):
-        for j in range(i+1,len(pairs)):
-            sent1=pairs[i].entity1.name
-            sent2=pairs[j].entity1.name
+    for i_it in range(0,len(pairs)):
+        for j_it in range(i_it+1,len(pairs)):
+                                   
+            i=pairs[i_it]
+            j=pairs[j_it]
+            sent1=i.entity1.name.lower()
+            sent2=j.entity1.name.lower()   
+           
             sents=[sent1,sent2]
             #依照長度排a,b
-            a,b= min(sents,key=len),max(sents,key=len)
+            a,b= min(sents,key=len).lower(),max(sents,key=len).lower()
             isOrdered= ([a,b]==sents)
             #計算a(短的)占比b中多少字
-            b_wordCount= len(b.split())+1
+            b_wordCount= len(b.split())
+            #都是單詞就跳過
+            if(b_wordCount<2):
+                continue
             #b_wordCount= len(b)
             sim= (b.count(a)) / b_wordCount
             print(a,b,sim)                
             
-            if sim>=0.5:#幾乎重複
-                
+            if sim==1:
+                continue
+            if sim>=0.5:#幾乎重複                
                 if isOrdered: #留短的
-                    #pairs[j].isRemoved=True
-                    pairs[j].entity1.name = pairs[i].entity1.name
+                    j.entity1.name = i.entity1.name
                 else:
-                    #pairs[i].isRemoved=True
-                    pairs[i].entity1.name = pairs[j].entity1.name
+                    i.entity1.name = j.entity1.name
                 print(" [合併] 幾乎重複的node ", sent1, sent2)
-            elif sim>0.25:
-                
+            elif sim>0.25:                
                 #建立關聯
                 if isOrdered: #短的在前
                     newPair=NodePair(Node(sent1),Node(sent2),"about")
@@ -142,4 +147,5 @@ def pairs_trim(pairs):
         pass
     if len(newPairsBuffer)>0:
         pairs.extend(newPairsBuffer)
+    pairs = list(set(pairs)) #刪除重複的
     return pairs

@@ -33,6 +33,7 @@ def DoSearch(request):
     asyncio.set_event_loop(loop)
     elements =loop.run_until_complete(GetNodes(text))
     print("輸出elements",len(elements),"筆資料")
+    
     dataJSON = dumps(elements)
     context = {}
     context["elements"] = dataJSON
@@ -44,6 +45,7 @@ def DoSearch(request):
 
 datas=[]
 nodepairs=[]
+
 async def GetNodes(keyword):
     #nodes= main(keyword)    
     
@@ -52,7 +54,7 @@ async def GetNodes(keyword):
     await task
     #node trim
     global nodepairs
-    #nodepairs = pairs_trim(nodepairs)
+    nodepairs = pairs_trim(nodepairs)
     #將返回的node pair整理成網頁展示用的
     NodePairs2Json(nodepairs)
     print("爬蟲結束...",len(datas),"筆資料")

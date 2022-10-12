@@ -34,8 +34,8 @@ def setupNlp():
     # 文本後處理
     #nlp.remove_pipe('sentencizer')
     
-    
-    
+#已處理過的wiki頁面
+processed_pages=[]    
 
 def main(nlp,_cleanText,preserveRate ):
     # 取得文本
@@ -117,7 +117,7 @@ def main(nlp,_cleanText,preserveRate ):
         for pair in pairs:           
             finalNodes.append(pair)
             print(pair.entity1.name,"-> [",pair.relation,"] ->",pair.entity2.name)    
-    #finalNodes = pairs_trim(finalNodes) #TODO:有Error
+    #finalNodes = pairs_trim(finalNodes) 
     #finalNodes = [p for p in finalNodes if p.isRemoved==False]
     #-------------- 上傳 Neo4j ---------------------
     '''
@@ -134,7 +134,7 @@ async def doProcess(nlp,pageTitle , itLeft , callback,preserveRate=0.1):
         return;
     
     wiki = wikiHelper()
-#NLP
+    #NLP
     text= wiki.GetPage(pageTitle)
     tc=textCleaner(text)
     cleanText = tc.cleanText(text);
@@ -154,7 +154,9 @@ async def doProcess(nlp,pageTitle , itLeft , callback,preserveRate=0.1):
         
                 
             #print(pair.entity1.name,"-> [",pair.relation,"] ->",pair.entity2.name)       
+    relativeLinks = [l for l in relativeLinks if l not in processed_pages];
     relativeLinks =  list(dict.fromkeys(relativeLinks)) #移除重複的
+    processed_pages.extend(relativeLinks)
     print("==================",itLeft," :相關 link ", relativeLinks,"=====================")
     for link in relativeLinks:
         await doProcess(nlp,link,(itLeft-1),callback,preserveRate)        
