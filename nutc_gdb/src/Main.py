@@ -117,7 +117,7 @@ def main(nlp,_cleanText,preserveRate ):
         for pair in pairs:           
             finalNodes.append(pair)
             print(pair.entity1.name,"-> [",pair.relation,"] ->",pair.entity2.name)    
-    #finalNodes = pairs_trim(finalNodes) 
+    finalNodes = pairs_trim(finalNodes) 
     #finalNodes = [p for p in finalNodes if p.isRemoved==False]
     #-------------- 上傳 Neo4j ---------------------
     '''

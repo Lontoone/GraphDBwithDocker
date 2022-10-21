@@ -42,7 +42,10 @@ function SetScape(data) {
     cy.unbind("click");
     cy.unbind("cxttap");
   }
-  graphData = { datas: [...graphData.datas, ...data.datas] };
+  console.log(data)
+  let unionDatas = $.merge(graphData.datas, data.datas.filter((x)=>graphData.datas.indexOf(x) === -1 ))
+  //graphData = { datas: [...graphData.datas, ...data.datas] };
+  graphData = { datas: [...unionDatas] };
   console.log(graphData);
   cy = cytoscape({
     container: document.getElementById("cy"),

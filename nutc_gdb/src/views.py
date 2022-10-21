@@ -12,6 +12,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 #from matplotlib.style import context
 
+class AdvancedJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, set):
+            return list(obj)
+        return json.JSONEncoder.default(self, obj)
+
 nlp=''
 def index(request):
     
@@ -43,8 +49,8 @@ def DoSearch(request):
     #return render(request, "index.html",context )
     pass
 
-datas=[]
-nodepairs=[]
+#datas=set()
+nodepairs=set()
 
 async def GetNodes(keyword):
     #nodes= main(keyword)    
@@ -54,9 +60,9 @@ async def GetNodes(keyword):
     await task
     #node trim
     global nodepairs
-    nodepairs = pairs_trim(nodepairs)
+    nodepairs =set( pairs_trim(nodepairs))
     #將返回的node pair整理成網頁展示用的
-    NodePairs2Json(nodepairs)
+    datas = NodePairs2Json(nodepairs)
     print("爬蟲結束...",len(datas),"筆資料")
     elements={
         "datas":datas
@@ -66,10 +72,12 @@ async def GetNodes(keyword):
 def CollectNodes(new_nps):
     #蒐集nodepair
     global nodepairs
-    nodepairs.extend(new_nps)
+    #nodepairs.extend(new_nps)
+    nodepairs= list(set(nodepairs).union(new_nps))
    
 def NodePairs2Json(nps):
-    global datas
+    #global datas
+    datas=[]
     r = lambda: random.randint(0,255)
     color = '#{:02x}{:02x}{:02x}'.format(r(), r(), r())
     print(color)
@@ -88,4 +96,3 @@ def NodePairs2Json(nps):
         datas.append(_edge)
     print("[CollectNodes 結果]",len(datas),"筆資料")
     return datas
-    

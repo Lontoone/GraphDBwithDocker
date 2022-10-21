@@ -4,7 +4,8 @@ class NodePair:
         self.entity2=node2
         self.relation=relation
         self.coVector={}        
-        self.isRemoved=False
+        #self.toRemove=True
+        self.edgeCounts=0
         #self.sent = node1+relation+node2
         
         
@@ -119,21 +120,23 @@ def pairs_trim(pairs):
             isOrdered= ([a,b]==sents)
             #計算a(短的)占比b中多少字
             b_wordCount= len(b.split())
-            #都是單詞就跳過
-            if(b_wordCount<2):
+            #過短的就跳過
+            if(len(a)<2):
                 continue
             #b_wordCount= len(b)
             sim= (b.count(a)) / b_wordCount
             print(a,b,sim)                
             
-            if sim==1:
-                continue
             if sim>=0.5:#幾乎重複                
                 if isOrdered: #留短的
                     j.entity1.name = i.entity1.name
                 else:
                     i.entity1.name = j.entity1.name
                 print(" [合併] 幾乎重複的node ", sent1, sent2)
+                i.edgeCounts+=1
+                j.edgeCounts+=1
+                #i.toRemove=False
+                #j.toRemove=False
             elif sim>0.25:                
                 #建立關聯
                 if isOrdered: #短的在前
@@ -143,9 +146,19 @@ def pairs_trim(pairs):
                     
                 print(" [新增] 新關聯 ", sent1, sent2)
                 newPairsBuffer.append(newPair)
+                i.edgeCounts+=1
+                j.edgeCounts+=1
+                #i.toRemove=False
+                #j.toRemove=False
+            
             pass
         pass
     if len(newPairsBuffer)>0:
         pairs.extend(newPairsBuffer)
     pairs = list(set(pairs)) #刪除重複的
+    pairs = [p for p in pairs if p.edgeCounts>1]
     return pairs
+
+#def trim_less_than(pairs, threshold):
+    
+    
