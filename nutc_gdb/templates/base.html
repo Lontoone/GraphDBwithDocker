@@ -55,11 +55,12 @@
         <script>
             function SendSearch() {
                 var text = document.getElementById('search_text').value;
+                var itRange = document.getElementById('itRamge').value;
                 console.log('send ' +text);
                 $.ajax({
                     type: "POST",
                     url: '{{ ' /search/ ' }}',
-                    data: { csrfmiddlewaretoken: '{{ csrf_token }}', text: text },
+                    data: { csrfmiddlewaretoken: '{{ csrf_token }}', text: text ,it:itRange},
                     success: function callback(response) {
 
                         var data = JSON.parse(response)
@@ -76,7 +77,12 @@
             <input type="text" id="search_text" placeholder="輸入搜尋Wiki關鍵字">
             <button type="submit" id="button" value="process" onclick="SendSearch()">搜尋</button>
         </div>
-
+        <!-- 爬蟲深度 -->
+        <h4 class="ui horizontal divider">爬蟲深度</h4>
+        <div class="side__nav_node_property_containre">
+            <label for="side__nav_node_id">爬蟲深度 (因使用免費平台，運算能力不佳，建議設1)</label>
+            <input type="number" min="1" max="5" value="1" id="itRamge">
+        </div>
         <!-- 所選節點 -->
         <h4 class="ui horizontal divider">屬性</h4>
         <div class="side__nav_node_property_containre">

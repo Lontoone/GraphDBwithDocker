@@ -25,7 +25,8 @@ def index(request):
 
 @csrf_exempt
 def DoSearch(request):
-    text = request.POST['text']   
+    text = request.POST['text']  
+    it = eval(request.POST['it'] )
     
     print("準備 nlp ")    
     global nlp
@@ -37,7 +38,7 @@ def DoSearch(request):
     #elements = GetNodes(text)
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    elements =loop.run_until_complete(GetNodes(text))
+    elements =loop.run_until_complete(GetNodes(text,it))
     print("輸出elements",len(elements),"筆資料")
     
     dataJSON = dumps(elements)
@@ -52,10 +53,10 @@ def DoSearch(request):
 #datas=set()
 nodepairs=set()
 
-async def GetNodes(keyword):
+async def GetNodes(keyword,it):
     #nodes= main(keyword)    
     
-    task= asyncio.ensure_future(doProcess(nlp,keyword,2 , CollectNodes,0.15))
+    task= asyncio.ensure_future(doProcess(nlp,keyword,it , CollectNodes,0.15))
     print("執行爬蟲中...")
     await task
     #node trim
